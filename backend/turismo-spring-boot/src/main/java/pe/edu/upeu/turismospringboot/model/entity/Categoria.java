@@ -21,6 +21,8 @@ public class Categoria {
     @Column(nullable = false, unique = true)
     private String nombre;
 
+    private String imagenUrl;
+
     @ManyToOne
     @JoinColumn(name = "id_lugar_turistico", nullable = false)
     @JsonBackReference

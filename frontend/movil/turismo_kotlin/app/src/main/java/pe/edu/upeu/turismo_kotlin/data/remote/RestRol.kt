@@ -11,6 +11,9 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
+//"RestRol es una interfaz que conecta con la API para gestionar roles.
+//Permite listar, buscar, crear, actualizar y eliminar roles usando peticiones HTTP
+// (GET, POST, PUT, DELETE) con autorización mediante token."
 interface RestRol {
 
     @GET("/admin/rol")  // URL de la API que devuelve todos los roles

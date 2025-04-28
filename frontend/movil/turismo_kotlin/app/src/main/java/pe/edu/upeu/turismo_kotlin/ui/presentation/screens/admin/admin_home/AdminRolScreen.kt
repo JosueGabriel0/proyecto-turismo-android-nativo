@@ -26,6 +26,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import pe.edu.upeu.turismo_kotlin.modelo.RolDto
 import pe.edu.upeu.turismo_kotlin.modelo.RolResponse
 
+//"AdminRolScreen es la pantalla que muestra los roles en la app.
+//Usa un ViewModel para obtener los roles, manejar la carga (isLoading), errores
+// (errorMessage) y abrir un diálogo para agregar o editar un rol."
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminRolScreen(

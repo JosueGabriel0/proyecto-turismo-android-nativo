@@ -3,6 +3,7 @@ package pe.edu.upeu.turismo_kotlin.ui.presentation.screens.admin
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import pe.edu.upeu.turismo_kotlin.ui.presentation.screens.admin.admin_home.AdminCategoriaScreen
 import pe.edu.upeu.turismo_kotlin.ui.presentation.screens.admin.admin_home.AdminDashboardScreen
 import pe.edu.upeu.turismo_kotlin.ui.presentation.screens.admin.admin_home.AdminLugarTuristicoScreen
 import pe.edu.upeu.turismo_kotlin.ui.presentation.screens.admin.admin_home.AdminRolScreen
@@ -114,6 +116,17 @@ fun HomeAdminScreen(
                             icon = { Icon(Icons.Default.Place, contentDescription = "LugarTuristico") },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
+
+                        NavigationDrawerItem(
+                            label = { Text("Categoria") },
+                            selected = selectedView.value == "categoria",
+                            onClick = {
+                                selectedView.value = "categoria"
+                                scope.launch { drawerState.close() }
+                            },
+                            icon = { Icon(Icons.Default.AddCircle, contentDescription = "Categoria") },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
                     }
 
                     // Botón de Cerrar sesión
@@ -159,6 +172,7 @@ fun HomeAdminScreen(
                     "usuarios" -> AdminUsuarioScreen()
                     "roles" -> AdminRolScreen()
                     "lugarTuristico" -> AdminLugarTuristicoScreen()
+                    "categoria" -> AdminCategoriaScreen()
                     else -> Text("Vista no encontrada")
                 }
             }

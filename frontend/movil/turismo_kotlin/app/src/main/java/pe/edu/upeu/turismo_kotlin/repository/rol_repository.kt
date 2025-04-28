@@ -7,6 +7,10 @@ import pe.edu.upeu.turismo_kotlin.utils.TokenUtils
 import retrofit2.Response
 import javax.inject.Inject
 
+//"RolRepository es una interfaz que define operaciones para manejar roles (obtener, crear, actualizar y eliminar).
+//RolRepositoryImpl es la implementación real que usa RestRol para hacer las peticiones a la API
+// y devuelve los resultados."
+
 interface RolRepository {
     suspend fun getRoles(): List<RolResponse>
     suspend fun getRolById(idRol: Int): RolResponse?

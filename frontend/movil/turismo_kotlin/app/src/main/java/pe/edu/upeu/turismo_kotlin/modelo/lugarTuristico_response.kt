@@ -15,15 +15,6 @@ data class LugarTuristicoResponse(
     val fechaModificacionLugarTuristico: String
 )
 
-data class CategoriaResponse(
-    val idCategoria: Long,
-    val nombre: String,
-    val lugarTuristico: String,
-    val emprendimientos: List<EmprendimientoResponse>,
-    val fechaCreacionCategoria: String,
-    val fechaModificacionCategoria: String
-)
-
 data class EmprendimientoResponse(
     val idEmprendimiento: Long,
     val nombre: String,

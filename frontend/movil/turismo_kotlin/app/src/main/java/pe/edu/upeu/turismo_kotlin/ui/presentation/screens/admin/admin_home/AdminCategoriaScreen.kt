@@ -1,9 +1,6 @@
 package pe.edu.upeu.turismo_kotlin.ui.presentation.screens.admin.admin_home
 
 import android.graphics.BitmapFactory
-import android.net.Uri
-import android.provider.MediaStore
-import android.database.Cursor
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,64 +21,65 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import pe.edu.upeu.turismo_kotlin.R
-import pe.edu.upeu.turismo_kotlin.modelo.LugarTuristicoDto
-import pe.edu.upeu.turismo_kotlin.modelo.LugarTuristicoResponse
+import pe.edu.upeu.turismo_kotlin.modelo.CategoriaDto
+import pe.edu.upeu.turismo_kotlin.modelo.CategoriaResponse
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminLugarTuristicoScreen(
-    viewModel: AdminLugarTuristicoViewModel = hiltViewModel()
+fun AdminCategoriaScreen(
+    viewModel: AdminCategoriaViewModel = hiltViewModel()
 ) {
-    val lugares by viewModel.lugaresTuristicos.collectAsState(initial = emptyList())
+    val categorias by viewModel.categorias.collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState(initial = false)
     val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
 
     var isDialogOpen by remember { mutableStateOf(false) }
-    var selectedLugar by remember { mutableStateOf<LugarTuristicoResponse?>(null) }
+    var selectedCategoria by remember { mutableStateOf<CategoriaResponse?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.obtenerLugaresTuristicos()
+        viewModel.obtenerCategorias()
     }
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { isDialogOpen = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar Lugar")
+            FloatingActionButton(onClick = {
+                selectedCategoria = null
+                isDialogOpen = true
+            }) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar Categoría")
             }
         }
     ) { paddingValues ->
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding()) {
+            .padding(paddingValues)) {
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else {
                 Column(modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())) {
-                    lugares.forEach { lugar ->
-                        LugarItem(
-                            lugar = lugar,
-                            viewModel = viewModel,
+                    categorias.forEach { categoria ->
+                        CategoriaItem(
+                            categoria = categoria,
                             onEdit = {
-                                selectedLugar = lugar
+                                selectedCategoria = categoria
                                 isDialogOpen = true
                             },
                             onDelete = {
-                                viewModel.eliminarLugarTuristico(lugar.idLugar)
-                            }
+                                viewModel.eliminarCategoria(categoria.idCategoria)
+                            },
+                            viewModel = viewModel
                         )
                     }
                 }
             }
+
             errorMessage?.let {
                 Text(
                     text = it,
@@ -93,17 +91,14 @@ fun AdminLugarTuristicoScreen(
     }
 
     if (isDialogOpen) {
-        AddOrUpdateLugarDialog(
-            initialLugar = selectedLugar,
+        AddOrUpdateCategoriaDialog(
+            initialCategoria = selectedCategoria,
             onDismiss = { isDialogOpen = false },
-            onSave = { lugarDto, imagePart ->
-                if (selectedLugar == null) {
-                    viewModel.crearLugarTuristico(lugarDto, imagePart)
+            onSave = { categoriaDto, imagenPart ->
+                if (selectedCategoria == null) {
+                    viewModel.crearCategoria(categoriaDto, imagenPart)
                 } else {
-                    selectedLugar?.let { lugar ->
-                        Log.d("ACTUALIZAR", "ID del lugar: ${lugar.idLugar}, ${lugar}")
-                        viewModel.actualizarLugarTuristico(lugar.idLugar, lugarDto, imagePart)
-                    }
+                    viewModel.actualizarCategoria(selectedCategoria!!.idCategoria, categoriaDto, imagenPart)
                 }
                 isDialogOpen = false
             }
@@ -112,26 +107,30 @@ fun AdminLugarTuristicoScreen(
 }
 
 @Composable
-fun LugarItem(
-    lugar: LugarTuristicoResponse,
-    viewModel: AdminLugarTuristicoViewModel,
+fun CategoriaItem(
+    categoria: CategoriaResponse,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    viewModel: AdminCategoriaViewModel
 ) {
     var imageBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     var imageLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(lugar.imagenUrl) {
-        viewModel.obtenerImagenLugar(
-            lugar.imagenUrl ?: "",
-            onSuccess = { responseBody ->
-                val bytes = responseBody.bytes()
-                if (bytes.isNotEmpty()) {
+    LaunchedEffect(categoria.imagenUrl) {
+        viewModel.obtenerImagenCategoria(
+            categoria.imagenUrl,
+            onSuccess = { imageResponse ->
+                try {
+                    val bytes = imageResponse.bytes()
                     imageBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                } catch (e: Exception) {
+                    Log.e("CategoriaItem", "Error decoding image: ${e.localizedMessage}")
+                } finally {
+                    imageLoading = false
                 }
-                imageLoading = false
             },
             onError = {
+                Log.e("CategoriaItem", "Error loading image: $it")
                 imageLoading = false
             }
         )
@@ -141,7 +140,8 @@ fun LugarItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         if (imageLoading) {
             CircularProgressIndicator(modifier = Modifier.size(40.dp))
@@ -149,85 +149,83 @@ fun LugarItem(
             imageBitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
-                    contentDescription = "Imagen Lugar",
+                    contentDescription = "Imagen Categoría",
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
                 )
-            } ?: Icon(
-                painter = painterResource(id = R.drawable.imagen_bienvenida1),
-                contentDescription = "Imagen no disponible",
-                modifier = Modifier.size(40.dp)
-            )
+            }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = lugar.nombre, modifier = Modifier.weight(1f))
+        Text(
+            text = categoria.nombre,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f).padding(start = 16.dp)
+        )
 
-        IconButton(onClick = onEdit) {
-            Icon(Icons.Default.Edit, contentDescription = "Editar Lugar")
-        }
-        IconButton(onClick = onDelete) {
-            Icon(Icons.Default.Delete, contentDescription = "Eliminar Lugar")
+        Row {
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Default.Edit, contentDescription = "Editar")
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddOrUpdateLugarDialog(
-    initialLugar: LugarTuristicoResponse?,
+fun AddOrUpdateCategoriaDialog(
+    initialCategoria: CategoriaResponse?,
     onDismiss: () -> Unit,
-    onSave: (LugarTuristicoDto, MultipartBody.Part?) -> Unit
+    onSave: (CategoriaDto, MultipartBody.Part?) -> Unit
 ) {
     val context = LocalContext.current
-    var nombre by remember { mutableStateOf(initialLugar?.nombre ?: "") }
-    var descripcion by remember { mutableStateOf(initialLugar?.descripcion ?: "") }
-    var ubicacion by remember { mutableStateOf(initialLugar?.ubicacion ?: "") }
-    var fotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    var nombre by remember { mutableStateOf(initialCategoria?.nombre ?: "") }
+    var nombreLugar by remember { mutableStateOf(initialCategoria?.lugarTuristico?.nombre ?: "") }
+    var imagenUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     val openGalleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? -> fotoUri = uri }
+    ) { uri ->
+        uri?.let { imagenUri = it }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = if (initialLugar == null) "Agregar Lugar" else "Actualizar Lugar") },
+        title = { Text(if (initialCategoria == null) "Agregar Categoría" else "Editar Categoría") },
         text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 TextField(
                     value = nombre,
                     onValueChange = { nombre = it },
-                    label = { Text("Nombre") }
+                    label = { Text("Nombre de Categoría") }
                 )
                 TextField(
-                    value = descripcion,
-                    onValueChange = { descripcion = it },
-                    label = { Text("Descripción") }
-                )
-                TextField(
-                    value = ubicacion,
-                    onValueChange = { ubicacion = it },
-                    label = { Text("Ubicación") }
+                    value = nombreLugar,
+                    onValueChange = { nombreLugar = it },
+                    label = { Text("Nombre del Lugar Turístico") }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(onClick = { openGalleryLauncher.launch("image/*") }) {
-                    Text(text = "Seleccionar Imagen")
+                Button(onClick = {
+                    openGalleryLauncher.launch("image/*")
+                }) {
+                    Text("Seleccionar Imagen")
                 }
 
-                fotoUri?.let {
+                imagenUri?.let {
                     Text(text = "Imagen seleccionada: $it", style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
         confirmButton = {
             Button(onClick = {
-                val fotoPart = fotoUri?.let { uri ->
-                    val file = File(context.getRealPathFromURILugarTuristico(uri))
+                val imagenPart = imagenUri?.let {
+                    val file = File(context.getRealPathFromURICategoria(it))
                     MultipartBody.Part.createFormData(
                         "file",
                         file.name,
@@ -235,13 +233,11 @@ fun AddOrUpdateLugarDialog(
                     )
                 }
                 onSave(
-                    LugarTuristicoDto(
+                    CategoriaDto(
                         nombre = nombre,
-                        descripcion = descripcion,
-                        ubicacion = ubicacion,
-                        imagenUrl = fotoUri?.toString() ?: "" // <-- AQUI AÑADES ESTO
+                        nombreLugar = nombreLugar
                     ),
-                    fotoPart
+                    imagenPart
                 )
             }) {
                 Text("Guardar")
@@ -255,11 +251,12 @@ fun AddOrUpdateLugarDialog(
     )
 }
 
-fun android.content.Context.getRealPathFromURILugarTuristico(uri: Uri): String? {
-    val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
+// Helper para obtener el path real del archivo
+fun android.content.Context.getRealPathFromURICategoria(uri: android.net.Uri): String {
+    val cursor = contentResolver.query(uri, null, null, null, null)
     cursor?.moveToFirst()
-    val idx = cursor?.getColumnIndex(MediaStore.Images.Media.DATA)
-    val path = idx?.let { cursor.getString(it) }
+    val index = cursor?.getColumnIndex(android.provider.MediaStore.Images.Media.DATA)
+    val result = index?.let { cursor.getString(it) }
     cursor?.close()
-    return path
+    return result ?: throw IllegalArgumentException("No se pudo obtener el path")
 }

@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import pe.edu.upeu.turismo_kotlin.data.remote.RestCategoria
 import pe.edu.upeu.turismo_kotlin.data.remote.RestFile
 import pe.edu.upeu.turismo_kotlin.data.remote.RestLogin
 import pe.edu.upeu.turismo_kotlin.data.remote.RestLugarTuristico
@@ -71,5 +72,11 @@ class DataSourceModule {
     @Provides
     fun restLugarTuristico(retrofit: Retrofit): RestLugarTuristico {
         return retrofit.create(RestLugarTuristico::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun restCategoria(retrofit: Retrofit): RestCategoria {
+        return retrofit.create(RestCategoria::class.java)
     }
 }

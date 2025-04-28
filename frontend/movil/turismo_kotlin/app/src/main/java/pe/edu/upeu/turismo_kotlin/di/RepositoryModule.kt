@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import pe.edu.upeu.turismo_kotlin.repository.CategoriaRepository
+import pe.edu.upeu.turismo_kotlin.repository.CategoriaRepositoryImpl
 import pe.edu.upeu.turismo_kotlin.repository.FileRepository
 import pe.edu.upeu.turismo_kotlin.repository.FileRepositoryImpl
 import pe.edu.upeu.turismo_kotlin.repository.LoginRepository
@@ -43,5 +45,10 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun
             lugarTuristicoRepository(lugarTuristicoRepos: LugarTuristicoRepositoryImpl): LugarTuristicoRepository
+
+    @Binds
+    @Singleton
+    abstract fun
+            categoriaRepository(categoriaRepos: CategoriaRepositoryImpl): CategoriaRepository
 
 }

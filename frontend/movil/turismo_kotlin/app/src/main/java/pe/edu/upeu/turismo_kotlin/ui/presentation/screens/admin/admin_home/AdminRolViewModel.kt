@@ -11,6 +11,10 @@ import pe.edu.upeu.turismo_kotlin.modelo.RolResponse
 import pe.edu.upeu.turismo_kotlin.repository.RolRepository
 import javax.inject.Inject
 
+//"AdminRolViewModel maneja la lógica de la pantalla de roles.
+//Usa StateFlow para actualizar la lista de roles (roles), mostrar cargando (isLoading) y capturar errores (errorMessage).
+//La función fetchRoles() obtiene los roles desde el repositorio y actualiza el estado."
+
 @HiltViewModel
 class AdminRolViewModel @Inject constructor(private val rolRepository: RolRepository) : ViewModel() {
 
