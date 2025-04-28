@@ -19,7 +19,6 @@ Este proyecto consta de un frontend desarrollado en Kotlin para Android y un bac
    ```bash
    git clone https://github.com/JosueGabriel0/proyecto-turismo-android-nativo.git
 2. **Navegar a la carpeta del backend: Entra en la carpeta donde se encuentra el proyecto del backend**:
-cd backend
-
+**C:\proyecto-turismo-android-nativo\backend\turismo-spring-boots**
 3. **Ejecutar el servidor**:
 spring-boot:run
