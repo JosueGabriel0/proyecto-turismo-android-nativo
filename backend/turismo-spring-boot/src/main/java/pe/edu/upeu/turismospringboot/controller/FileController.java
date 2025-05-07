@@ -13,7 +13,7 @@ import java.io.File;
 public class FileController {
 
     // Ruta de los archivos
-    private static final String UPLOAD_DIR = "D:/Documentos/Universidad UPeU 6 ciclo/Desarrollo de aplicaciones moviles/proyecto-turismo/backend/turismo-spring-boot/upload/";
+    private static final String UPLOAD_DIR = "D:/Documentos/Universidad UPeU 6 ciclo/Desarrollo de aplicaciones moviles/proyecto-turismo-android-nativo/backend/turismo-spring-boot/upload/";
 
     @GetMapping("filePerfil/file/{fileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
