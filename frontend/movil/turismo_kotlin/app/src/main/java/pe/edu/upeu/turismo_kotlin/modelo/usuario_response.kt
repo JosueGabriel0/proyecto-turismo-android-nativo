@@ -1,9 +1,5 @@
 package pe.edu.upeu.turismo_kotlin.modelo
 
-import android.content.IntentFilter
-import java.time.LocalDate
-import java.util.Date
-
 data class UsuarioResponse(
     val idUsuario: Long,  // ID del usuario es un entero
     val username: String,
